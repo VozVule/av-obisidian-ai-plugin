@@ -24,17 +24,48 @@ export class LLMChatView extends ItemView {
     content.empty();
 
     const wrapper = content.createEl('div', {
+      cls: 'llm-chat-view',
+    });
+
+    const header = wrapper.createEl('div', {
+      cls: 'llm-chat-view__header',
+    });
+
+    header.createEl('h2', {
+      text: 'LLM Chat',
+      cls: 'llm-chat-view__title',
+    });
+
+    const closeButton = header.createEl('button', {
+      text: 'X',
+      cls: 'llm-chat-view__close-button',
+      attr: { 'aria-label': 'Collapse chat view' },
+    });
+
+    closeButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      this.collapseSidebar();
+    });
+
+    const placeholder = wrapper.createEl('div', {
       cls: 'llm-chat-view__placeholder',
     });
 
-    wrapper.createEl('h2', { text: 'LLM Chat placeholder' });
-    wrapper.createEl('p', {
+    placeholder.createEl('p', {
       text:
-        'This is where the chat interface will live. Provide a prompt and display responses here.',
+        'This is where the chat interface will live. Collapse the view with the X button without ending the session.',
     });
   }
 
   async onClose(): Promise<void> {
     // nothing to clean up yet; placeholder implementation
+  }
+
+  private collapseSidebar(): void {
+    const { rightSplit } = this.app.workspace;
+    if (!rightSplit) {
+      return;
+    }
+    rightSplit.collapse();
   }
 }
