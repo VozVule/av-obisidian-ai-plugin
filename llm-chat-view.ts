@@ -50,10 +50,11 @@ export class LLMChatView extends ItemView {
     const placeholder = wrapper.createEl('div', {
       cls: 'llm-chat-view__placeholder',
     });
-
+    const currentFile = this.app.workspace.getActiveFile();
     placeholder.createEl('p', {
       text:
-        'This is where the chat interface will live. Collapse the view with the X button without ending the session.',
+        'This is where the chat interface will live. Collapse the view with the X button without ending the session.' + 
+        ' Current file: ' + (currentFile ? currentFile.path : 'No file open'),
     });
   }
 
