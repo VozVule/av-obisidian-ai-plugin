@@ -65,6 +65,32 @@ If your plugin does not need CSS, delete this file.
 	font-size: 0.85rem;
 }
 
+.llm-chat__controls {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.llm-chat__model {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.llm-chat__model-label {
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.llm-chat__model-select {
+	flex: 1;
+	border-radius: var(--radius-s);
+	border: 1px solid var(--background-modifier-border);
+	padding: 0.3rem 0.4rem;
+	background: var(--background-primary);
+	color: var(--text-normal);
+}
+
 .llm-chat__messages {
 	display: flex;
 	flex: 1;

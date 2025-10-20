@@ -1,6 +1,35 @@
 import { Notice, TFile } from 'obsidian';
 import type ObsidianAiPlugin from '../main';
 import { AiConnector, ConnectorChatMessage } from '../ai-connector';
+import modelConfig from '../config.json';
+
+interface ModelConfigEntry {
+  id: string;
+  label: string;
+  size?: string;
+}
+
+const SIZE_ORDER = ['small', 'medium', 'large', 'xl', 'experimental'];
+
+const MODEL_OPTIONS: ModelConfigEntry[] = Array.isArray((modelConfig as any)?.models)
+  ? [...(modelConfig as any).models]
+      .filter((entry: any): entry is ModelConfigEntry => entry && typeof entry.id === 'string' && typeof entry.label === 'string')
+      .sort((a, b) => {
+        const sizeDiff = getSizeRank(a.size) - getSizeRank(b.size);
+        if (sizeDiff !== 0) {
+          return sizeDiff;
+        }
+        return a.label.localeCompare(b.label);
+      })
+  : [];
+
+function getSizeRank(size?: string): number {
+  if (!size) {
+    return SIZE_ORDER.length;
+  }
+  const index = SIZE_ORDER.indexOf(size.toLowerCase());
+  return index === -1 ? SIZE_ORDER.length : index;
+}
 
 interface ChatComponentOptions {
   onNewContext?: (path: string | null) => void;
@@ -11,10 +40,12 @@ export class ChatComponent {
   private readonly plugin: ObsidianAiPlugin;
   private readonly options?: ChatComponentOptions;
   private connector?: AiConnector;
-  private apiKeySignature: string | null = null;
+  private connectorSignature: string | null = null;
+  private readonly modelOptions: ModelConfigEntry[] = MODEL_OPTIONS;
 
   private rootEl?: HTMLElement;
   private contextEl?: HTMLElement;
+  private modelSelectEl?: HTMLSelectElement;
   private messagesEl?: HTMLElement;
   private inputEl?: HTMLTextAreaElement;
   private sendButton?: HTMLButtonElement;
@@ -22,18 +53,35 @@ export class ChatComponent {
   private conversation: ConnectorChatMessage[] = [];
   private isSending = false;
   private contextPath: string | null = null;
+  private selectedModel: string;
 
   constructor(containerEl: HTMLElement, plugin: ObsidianAiPlugin, options?: ChatComponentOptions) {
     this.containerEl = containerEl;
     this.plugin = plugin;
     this.options = options;
+    this.selectedModel = this.modelOptions[0]?.id ?? '';
   }
 
   render(): void {
     this.clear();
 
     const root = this.containerEl.createDiv({ cls: 'llm-chat' });
-    const context = root.createDiv({ cls: 'llm-chat__context' });
+    const controls = root.createDiv({ cls: 'llm-chat__controls' });
+    const context = controls.createDiv({ cls: 'llm-chat__context' });
+    const modelWrapper = controls.createDiv({ cls: 'llm-chat__model' });
+
+    modelWrapper.createEl('label', {
+      cls: 'llm-chat__model-label',
+      text: 'Model',
+      attr: { for: 'llm-chat-model-select' },
+    });
+
+    const selectEl = modelWrapper.createEl('select', {
+      cls: 'llm-chat__model-select',
+      attr: { id: 'llm-chat-model-select' },
+    });
+    this.populateModelSelect(selectEl);
+
     const messages = root.createDiv({ cls: 'llm-chat__messages' });
     const form = root.createEl('form', { cls: 'llm-chat__form' });
 
@@ -58,11 +106,44 @@ export class ChatComponent {
 
     this.rootEl = root;
     this.contextEl = context;
+    this.modelSelectEl = selectEl;
     this.messagesEl = messages;
     this.inputEl = textarea;
     this.sendButton = sendButton;
 
     this.updateContextLabel();
+  }
+
+  private populateModelSelect(selectEl: HTMLSelectElement): void {
+    selectEl.empty();
+
+    if (!this.modelOptions.length) {
+      const option = selectEl.createEl('option', {
+        text: 'Default (connector)',
+        attr: { value: '' },
+      });
+      option.selected = true;
+      selectEl.disabled = true;
+      return;
+    }
+
+    const desiredModel = this.selectedModel || this.modelOptions[0].id;
+
+    this.modelOptions.forEach((entry) => {
+      const option = selectEl.createEl('option', {
+        text: `${entry.label} — ${entry.id}`,
+        attr: { value: entry.id },
+      });
+      if (entry.id === desiredModel) {
+        option.selected = true;
+      }
+    });
+
+    this.selectedModel = desiredModel;
+    selectEl.addEventListener('change', () => {
+      const newValue = selectEl.value;
+      this.handleModelChange(newValue);
+    });
   }
 
   resetConversation(): void {
@@ -115,6 +196,7 @@ export class ChatComponent {
         fileContent,
         userMessage: trimmedMessage,
         history,
+        model: this.selectedModel || undefined,
       });
 
       const assistantMessage = response.message || 'I was not able to produce a response.';
@@ -157,14 +239,33 @@ export class ChatComponent {
     this.containerEl.empty();
   }
 
+  private handleModelChange(modelId: string): void {
+    if (this.selectedModel === modelId) {
+      return;
+    }
+
+    this.selectedModel = modelId;
+    if (this.modelSelectEl && this.modelSelectEl.value !== modelId) {
+      this.modelSelectEl.value = modelId;
+    }
+    this.connectorSignature = null;
+    this.conversation = [];
+    this.messagesEl?.empty();
+    this.updateContextLabel();
+  }
+
   private getConnector(): AiConnector {
     const currentKey = this.plugin.settings?.apiKey ?? '';
-    if (this.connector && this.apiKeySignature === currentKey) {
+    const signature = `${currentKey}::${this.selectedModel}`;
+
+    if (this.connector && this.connectorSignature === signature) {
       return this.connector;
     }
 
-    this.connector = AiConnector.fromSettings(this.plugin.settings);
-    this.apiKeySignature = currentKey;
+    this.connector = AiConnector.fromSettings(this.plugin.settings, {
+      model: this.selectedModel || undefined,
+    });
+    this.connectorSignature = signature;
     return this.connector;
   }
 
@@ -195,8 +296,19 @@ export class ChatComponent {
       return;
     }
 
-    this.contextEl.setText(
-      this.contextPath ? `Context: ${this.contextPath}` : 'Context: No file selected',
-    );
+    const contextText = this.contextPath
+      ? `Context: ${this.contextPath}`
+      : 'Context: No file selected';
+    const modelLabel = this.getSelectedModelLabel();
+    const combined = modelLabel ? `${contextText} · Model: ${modelLabel}` : contextText;
+    this.contextEl.setText(combined);
+  }
+
+  private getSelectedModelLabel(): string {
+    if (!this.selectedModel) {
+      return '';
+    }
+    const match = this.modelOptions.find((entry) => entry.id === this.selectedModel);
+    return match?.label ?? this.selectedModel;
   }
 }
