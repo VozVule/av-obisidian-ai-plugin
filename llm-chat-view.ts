@@ -29,6 +29,7 @@ export class LLMChatView extends ItemView {
     const content = this.containerEl.children[1];
     content.empty();
 
+    // setup all the DOM elements for the chat view
     const wrapper = content.createEl('div', {
       cls: 'llm-chat-view',
     });
@@ -66,6 +67,7 @@ export class LLMChatView extends ItemView {
       this.collapseSidebar();
     });
 
+    // assign the chat component to the obsidian gui element
     const chatContainer = wrapper.createDiv({ cls: 'llm-chat-view__body' });
     this.chatComponent = new ChatComponent(chatContainer, this.plugin);
     this.chatComponent.render();
