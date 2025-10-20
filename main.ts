@@ -8,7 +8,7 @@ export default class ObsidianAiPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.registerView(VIEW_TYPE_LLM_CHAT, (leaf) => new LLMChatView(leaf));
+		this.registerView(VIEW_TYPE_LLM_CHAT, (leaf) => new LLMChatView(leaf, this));
 
 		// when clicked on the robot icon, open the LLM chat view sidebar
 		const robotRibbonIcon = this.addRibbonIcon('bot', 'Robot helper', () => {
