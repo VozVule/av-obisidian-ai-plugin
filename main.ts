@@ -1,13 +1,6 @@
 import { Notice, Plugin, WorkspaceLeaf } from 'obsidian';
 import { LLMChatView, VIEW_TYPE_LLM_CHAT } from './llm-chat-view';
-
-interface ObsidianAiSettings {
-	apiKey: string;
-}
-
-const DEFAULT_SETTINGS: ObsidianAiSettings = {
-	apiKey: 'TEST-API-KEY',
-};
+import { DEFAULT_SETTINGS, ObsidianAiSettings } from './settings';
 
 export default class ObsidianAiPlugin extends Plugin {
 	settings: ObsidianAiSettings;
