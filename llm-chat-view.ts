@@ -1,10 +1,16 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { ChatComponent } from './chat/chat-component';
+import type ObsidianAiPlugin from './main';
 
 export const VIEW_TYPE_LLM_CHAT = 'llm-chat-view';
 
 export class LLMChatView extends ItemView {
-  constructor(leaf: WorkspaceLeaf) {
+  private readonly plugin: ObsidianAiPlugin;
+  private chatComponent: ChatComponent | null = null;
+
+  constructor(leaf: WorkspaceLeaf, plugin: ObsidianAiPlugin) {
     super(leaf);
+    this.plugin = plugin;
   }
 
   getViewType(): string {
@@ -36,10 +42,23 @@ export class LLMChatView extends ItemView {
       cls: 'llm-chat-view__title',
     });
 
-    const closeButton = header.createEl('button', {
-      text: 'X',
-      cls: 'llm-chat-view__close-button',
+    const actions = header.createDiv({ cls: 'llm-chat-view__actions' });
+
+    const newChatButton = actions.createEl('button', {
+      text: '+',
+      cls: 'llm-chat-view__action-button',
+      attr: { 'aria-label': 'Start new chat session' },
+    });
+
+    const closeButton = actions.createEl('button', {
+      text: '×',
+      cls: 'llm-chat-view__action-button',
       attr: { 'aria-label': 'Collapse chat view' },
+    });
+
+    newChatButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      this.chatComponent?.resetConversation();
     });
 
     closeButton.addEventListener('click', (event) => {
@@ -47,15 +66,9 @@ export class LLMChatView extends ItemView {
       this.collapseSidebar();
     });
 
-    const placeholder = wrapper.createEl('div', {
-      cls: 'llm-chat-view__placeholder',
-    });
-    const currentFile = this.app.workspace.getActiveFile();
-    placeholder.createEl('p', {
-      text:
-        'This is where the chat interface will live. Collapse the view with the X button without ending the session.' + 
-        ' Current file: ' + (currentFile ? currentFile.path : 'No file open'),
-    });
+    const chatContainer = wrapper.createDiv({ cls: 'llm-chat-view__body' });
+    this.chatComponent = new ChatComponent(chatContainer, this.plugin);
+    this.chatComponent.render();
   }
 
   async onClose(): Promise<void> {

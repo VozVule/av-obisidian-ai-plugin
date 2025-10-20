@@ -1,94 +1,57 @@
-# Obsidian Sample Plugin
+# Obsidian AI Reviewer
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+A lightweight chat sidebar that lets you query an OpenAI "nano" model about the active file in Obsidian. The model receives the entire file as context and responds in line with a concise review-oriented system prompt.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
+- Chat with an AI assistant about the *current* file using Obsidian's right sidebar.
+- Conversation history within the session so you can follow up on previous answers.
+- Quick new-chat button to reset the conversation while staying in the same view.
+- Minimal UI designed to stay out of the way while you work in the editor.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## Requirements
+- Obsidian 1.4+
+- OpenAI API key with access to the `gpt-4.1-nano` family or better
+- Node.js 18+ for development/build steps
 
-## First time developing plugins?
+## Installation
+1. Clone or download this repository into `<vault>/.obsidian/plugins/av-obisidian-ai-plugin`.
+2. Run `npm install` followed by `npm run build` to produce `main.js`.
+3. In Obsidian, enable **Community plugins**, then toggle on **Obsidian AI Reviewer**.
 
-Quick starting guide for new plugin devs:
+## Configuring your API key
+The plugin stores secrets in its private data file rather than in version-controlled code.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
-
-## Releasing new releases
-
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint ./src/`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+1. After enabling the plugin once, Obsidian creates `data.json` inside the plugin folder.
+2. Edit that file and insert your key:
 
 ```json
 {
-    "fundingUrl": "https://buymeacoffee.com"
+  "apiKey": "sk-your-openai-key"
 }
 ```
 
-If you have multiple URLs, you can also do:
+In a later release, the settings tab will let you paste the key through the UI. Until then, editing `data.json` manually is the quickest route.
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+## Usage
+- Open a Markdown file, then click the robot ribbon icon to reveal the chat view.
+- Ask the assistant about the file—e.g. "Is the introduction clear?" or "What should I fix here?".
+- The assistant only knows about the active file; switching files and asking again will re-read the new file.
+- Click `+` in the chat header to clear the conversation and start a fresh exchange.
 
-## API Documentation
+## Development
+- `npm run dev` — watch mode for iterating on TypeScript/ESBuild output
+- `npm run build` — production bundle
 
-See https://github.com/obsidianmd/obsidian-api
+The main code lives in:
+- `main.ts` for plugin lifecycle and view registration
+- `llm-chat-view.ts` for the sidebar view
+- `chat/chat-component.ts` for chat UI and state
+- `ai-connector.ts` for OpenAI requests
+
+## Roadmap & ideas
+- Settings tab for managing the API key and prompt tweaks
+- Streaming responses to reduce perceived latency
+- Persisted chat history per file
+
+## License
+MIT

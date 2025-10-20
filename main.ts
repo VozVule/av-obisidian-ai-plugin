@@ -1,13 +1,6 @@
 import { Notice, Plugin, WorkspaceLeaf } from 'obsidian';
 import { LLMChatView, VIEW_TYPE_LLM_CHAT } from './llm-chat-view';
-
-interface ObsidianAiSettings {
-	apiKey: string;
-}
-
-const DEFAULT_SETTINGS: ObsidianAiSettings = {
-	apiKey: 'TEST-API-KEY',
-};
+import { DEFAULT_SETTINGS, ObsidianAiSettings } from './settings';
 
 export default class ObsidianAiPlugin extends Plugin {
 	settings: ObsidianAiSettings;
@@ -15,7 +8,7 @@ export default class ObsidianAiPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.registerView(VIEW_TYPE_LLM_CHAT, (leaf) => new LLMChatView(leaf));
+		this.registerView(VIEW_TYPE_LLM_CHAT, (leaf) => new LLMChatView(leaf, this));
 
 		// when clicked on the robot icon, open the LLM chat view sidebar
 		const robotRibbonIcon = this.addRibbonIcon('bot', 'Robot helper', () => {

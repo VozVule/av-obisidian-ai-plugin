@@ -12,6 +12,7 @@ If your plugin does not need CSS, delete this file.
 	flex-direction: column;
 	gap: 0.75rem;
 	padding: 1rem;
+	height: 100%;
 }
 
 .llm-chat-view__header {
@@ -25,23 +26,114 @@ If your plugin does not need CSS, delete this file.
 	font-size: 1.25rem;
 }
 
-.llm-chat-view__close-button {
+.llm-chat-view__actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.llm-chat-view__action-button {
 	background: transparent;
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-s);
 	color: var(--text-normal);
 	cursor: pointer;
-	font-size: 0.75rem;
+	font-size: 0.85rem;
 	font-weight: 600;
 	line-height: 1;
-	padding: 0.25rem 0.5rem;
+	min-width: 2rem;
+	padding: 0.3rem 0.5rem;
 }
 
-.llm-chat-view__close-button:hover {
+.llm-chat-view__action-button:hover {
 	background-color: var(--background-modifier-hover);
 }
 
-.llm-chat-view__placeholder {
+.llm-chat-view__body {
+	flex: 1;
+	min-height: 0;
+}
+
+.llm-chat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	height: 100%;
+}
+
+.llm-chat__context {
 	color: var(--text-muted);
-	font-size: 0.9rem;
+	font-size: 0.85rem;
+}
+
+.llm-chat__messages {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.75rem;
+	min-height: 0;
+	overflow-y: auto;
+	padding-right: 0.25rem;
+}
+
+.llm-chat__message {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	max-width: 90%;
+	padding: 0.5rem 0.75rem;
+}
+
+.llm-chat__message--user {
+	align-self: flex-end;
+	background-color: var(--background-secondary);
+}
+
+.llm-chat__message--assistant {
+	align-self: flex-start;
+	background-color: var(--background-primary);
+}
+
+.llm-chat__message-role {
+	color: var(--text-muted);
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.llm-chat__message-content {
+	white-space: pre-wrap;
+}
+
+.llm-chat__form {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.llm-chat__input {
+	flex: 1;
+	min-height: 3.5rem;
+	padding: 0.5rem;
+	resize: vertical;
+}
+
+.llm-chat__send-button {
+	align-self: flex-end;
+	background: var(--interactive-accent);
+	border: none;
+	border-radius: var(--radius-s);
+	color: var(--text-on-accent);
+	cursor: pointer;
+	font-weight: 600;
+	padding: 0.5rem 1rem;
+}
+
+.llm-chat__send-button.is-loading {
+	opacity: 0.7;
+}
+
+.llm-chat__send-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
 }
