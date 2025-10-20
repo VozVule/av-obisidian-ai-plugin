@@ -9,7 +9,7 @@ interface ModelConfigEntry {
   size?: string;
 }
 
-const SIZE_ORDER = ['small', 'medium', 'large', 'xl', 'experimental'];
+const SIZE_ORDER = ['small', 'medium', 'large', 'experimental'];
 
 const MODEL_OPTIONS: ModelConfigEntry[] = Array.isArray((modelConfig as any)?.models)
   ? [...(modelConfig as any).models]
