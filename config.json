@@ -1,0 +1,32 @@
+{
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "size": "small"
+    },
+    {
+      "id": "gpt-4o",
+      "size": "medium"
+    },
+    {
+      "id": "gpt-4.1",
+      "size": "large"
+    },
+    {
+      "id": "o4-mini",
+      "size": "small"
+    },
+    {
+      "id": "o4",
+      "size": "large"
+    },
+    {
+      "id": "gpt-5-nano",
+      "size": "small"
+    },
+    {
+      "id": "gpt-4.1-nano",
+      "size": "small"
+    }
+  ]
+}

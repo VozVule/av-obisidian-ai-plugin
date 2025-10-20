@@ -21,6 +21,7 @@ export interface ChatRequest {
   fileContent: string;
   userMessage: string;
   history?: ConnectorChatMessage[];
+  model?: string;
 }
 
 export interface ChatResponse {
@@ -57,14 +58,18 @@ export class AiConnector {
     this.systemPrompt = systemPrompt ?? DEFAULT_SYSTEM_PROMPT;
   }
 
-  static fromSettings(settings: ObsidianAiSettings): AiConnector {
-    return new AiConnector({ apiKey: settings.apiKey });
+  static fromSettings(
+    settings: ObsidianAiSettings,
+    overrides: Partial<AiConnectorOptions> = {},
+  ): AiConnector {
+    return new AiConnector({ apiKey: settings.apiKey, ...overrides });
   }
 
   async sendMessage({
     fileContent,
     userMessage,
     history,
+    model,
   }: ChatRequest): Promise<ChatResponse> {
     if (!userMessage || !userMessage.trim()) {
       throw new Error('User message cannot be empty.');
@@ -83,7 +88,7 @@ export class AiConnector {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: this.model,
+        model: model?.trim() || this.model,
         messages,
         temperature: 0.2,
         response_format: { type: 'text' },
