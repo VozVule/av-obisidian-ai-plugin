@@ -35,7 +35,19 @@ In a later release, the settings tab will let you paste the key through the UI. 
 
 ## Choosing a model
 - Use the dropdown at the top of the chat sidebar to pick the OpenAI model for the current session.
-- The list of options is defined in `config.json`; edit the file (and rebuild) to tailor the catalogue to your account.
+- The list of options is defined in `config.json`; each entry only needs an `id` and optional `size`:
+
+```json
+{
+  "models": [
+    { "id": "gpt-4o-mini", "size": "small" },
+    { "id": "gpt-4o", "size": "medium" },
+    { "id": "o4", "size": "large" }
+  ]
+}
+```
+
+- Edit the file (and rebuild) to tailor the catalogue to your account.
 - Switching models clears the current conversation so responses stay focused and consistent.
 
 ## Usage

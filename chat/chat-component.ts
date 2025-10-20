@@ -5,7 +5,6 @@ import modelConfig from '../config.json';
 
 interface ModelConfigEntry {
   id: string;
-  label: string;
   size?: string;
 }
 
@@ -13,13 +12,13 @@ const SIZE_ORDER = ['small', 'medium', 'large', 'experimental'];
 
 const MODEL_OPTIONS: ModelConfigEntry[] = Array.isArray((modelConfig as any)?.models)
   ? [...(modelConfig as any).models]
-      .filter((entry: any): entry is ModelConfigEntry => entry && typeof entry.id === 'string' && typeof entry.label === 'string')
+      .filter((entry: any): entry is ModelConfigEntry => entry && typeof entry.id === 'string')
       .sort((a, b) => {
         const sizeDiff = getSizeRank(a.size) - getSizeRank(b.size);
         if (sizeDiff !== 0) {
           return sizeDiff;
         }
-        return a.label.localeCompare(b.label);
+        return a.id.localeCompare(b.id);
       })
   : [];
 
@@ -29,6 +28,13 @@ function getSizeRank(size?: string): number {
   }
   const index = SIZE_ORDER.indexOf(size.toLowerCase());
   return index === -1 ? SIZE_ORDER.length : index;
+}
+
+function formatModelLabel(entry: ModelConfigEntry): string {
+  if (!entry.size) {
+    return entry.id;
+  }
+  return `${entry.id} (${entry.size})`;
 }
 
 interface ChatComponentOptions {
@@ -131,7 +137,7 @@ export class ChatComponent {
 
     this.modelOptions.forEach((entry) => {
       const option = selectEl.createEl('option', {
-        text: `${entry.label} — ${entry.id}`,
+        text: formatModelLabel(entry),
         attr: { value: entry.id },
       });
       if (entry.id === desiredModel) {
@@ -309,6 +315,6 @@ export class ChatComponent {
       return '';
     }
     const match = this.modelOptions.find((entry) => entry.id === this.selectedModel);
-    return match?.label ?? this.selectedModel;
+    return match ? formatModelLabel(match) : this.selectedModel;
   }
 }

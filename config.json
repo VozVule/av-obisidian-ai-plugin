@@ -1,39 +1,32 @@
 {
   "models": [
     {
-      "id": "gpt-4.1-nano",
-      "label": "GPT-4.1 Nano",
-      "size": "small"
-    },
-    {
       "id": "gpt-4o-mini",
-      "label": "GPT-4o Mini (Small)",
       "size": "small"
     },
     {
       "id": "gpt-4o",
-      "label": "GPT-4o (Medium)",
       "size": "medium"
     },
     {
       "id": "gpt-4.1",
-      "label": "GPT-4.1 (Large)",
       "size": "large"
     },
     {
       "id": "o4-mini",
-      "label": "o4 Mini (Small)",
       "size": "small"
     },
     {
       "id": "o4",
-      "label": "o4 (Large)",
       "size": "large"
     },
     {
-      "id": "gpt-5-preview",
-      "label": "GPT-5 Preview (Experimental)",
-      "size": "experimental"
+      "id": "gpt-5-nano",
+      "size": "small"
+    },
+    {
+      "id": "gpt-4.1-nano",
+      "size": "small"
     }
   ]
 }
